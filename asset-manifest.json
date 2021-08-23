@@ -1,8 +1,8 @@
 {
   "files": {
     "main.css": "/minimal-twitch-chat-react/static/css/main.7c132dbf.chunk.css",
-    "main.js": "/minimal-twitch-chat-react/static/js/main.606bcc55.chunk.js",
-    "main.js.map": "/minimal-twitch-chat-react/static/js/main.606bcc55.chunk.js.map",
+    "main.js": "/minimal-twitch-chat-react/static/js/main.e1e3bbae.chunk.js",
+    "main.js.map": "/minimal-twitch-chat-react/static/js/main.e1e3bbae.chunk.js.map",
     "runtime-main.js": "/minimal-twitch-chat-react/static/js/runtime-main.44f7d6a9.js",
     "runtime-main.js.map": "/minimal-twitch-chat-react/static/js/runtime-main.44f7d6a9.js.map",
     "static/js/2.b33be599.chunk.js": "/minimal-twitch-chat-react/static/js/2.b33be599.chunk.js",
@@ -30,6 +30,6 @@
     "static/js/runtime-main.44f7d6a9.js",
     "static/js/2.b33be599.chunk.js",
     "static/css/main.7c132dbf.chunk.css",
-    "static/js/main.606bcc55.chunk.js"
+    "static/js/main.e1e3bbae.chunk.js"
   ]
 }
