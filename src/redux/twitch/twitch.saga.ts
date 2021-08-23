@@ -45,26 +45,28 @@ function* getChannelInfo() {
     if (isLoggedIn) {
 
         const channelName: string = yield select(chatSelectors.getChannelName);
-        const broadcasterId: string = yield getBroadcasterId(channelName);
-        let token: string = yield select(authSelectors.getToken);
-        while (true) {
 
-            let { data } = yield axios.get(`https://api.twitch.tv/helix/streams`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Client-Id': CONFIG.TWITCH_CLIENT_ID,
-                },
-                params: {
-                    user_id: broadcasterId,
-                },
-            });
+        if (channelName) {
+            const broadcasterId: string = yield getBroadcasterId(channelName);
+            let token: string = yield select(authSelectors.getToken);
+            while (true) {
 
-            console.log('streamInfo', data);
+                let { data } = yield axios.get(`https://api.twitch.tv/helix/streams`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Client-Id': CONFIG.TWITCH_CLIENT_ID,
+                    },
+                    params: {
+                        user_id: broadcasterId,
+                    },
+                });
 
-            yield put(streamInfoReceived(data.data[0]));
+                console.log('streamInfo', data);
 
-            yield delay(30000);
+                yield put(streamInfoReceived(data.data[0]));
 
+                yield delay(30000);
+            }
         }
     }
 
@@ -91,6 +93,8 @@ function* requestFollowedStreams() {
 export default function* twitchSaga() {
     console.log('Twitch Saga Ready');
     yield takeLatest(authActions.processToken.type, getUserInfo);
-    yield takeLatest(chatActions.channelJoined.type, getChannelInfo);
+    yield takeLatest([authActions.processToken.type, chatActions.channelJoined.type], getChannelInfo);
+
+
     yield takeLatest(twitchActions.getFollowedStreams.type, requestFollowedStreams);
 }
