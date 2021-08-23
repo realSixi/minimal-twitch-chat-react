@@ -24,12 +24,10 @@ const rootReducer = createRootReducer(history);
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 
-let store : Store;
-if (process.env.NODE_ENV === 'development') {
-    store = createStore(persistedReducer, applyMiddleware(sagaMiddleware, routerMiddleware(history), logger));
-} else {
-    store = createStore(persistedReducer, applyMiddleware(sagaMiddleware, routerMiddleware(history)));
-}
+let store: Store;
+// if (process.env.NODE_ENV === 'development') {
+store = createStore(persistedReducer, applyMiddleware(sagaMiddleware, routerMiddleware(history), logger));
+
 
 sagaMiddleware.run(rootSaga);
 
