@@ -8,7 +8,7 @@ import { routerMiddleware } from 'connected-react-router'
 import createRootReducer from "./reducers";
 
 
-export const history = createBrowserHistory()
+export const history = createBrowserHistory({basename: '/minimal-twitch-chat-react/'})
 
 const sagaMiddleware = createSagaMiddleware();
 

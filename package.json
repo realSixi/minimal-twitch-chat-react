@@ -4,6 +4,7 @@
     "name": "sixi",
     "url": "https://github.com/realSixi"
   },
+  "homepage": "https://realSixi.github.io/minimal-twitch-chat-react",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -49,7 +50,8 @@
   },
   "scripts": {
     "start": "craco start",
-    "build": "craco build",
+    "build": "craco build && cp build/index.html build/404.html",
+    "deploy": "gh-pages -d build",
     "test": "craco test",
     "eject": "react-scripts eject"
   },
@@ -76,6 +78,7 @@
     "@types/react-router-dom": "^5.1.8",
     "@types/redux-logger": "^3.0.9",
     "@types/tmi.js": "^1.7.2",
+    "gh-pages": "^3.2.3",
     "reselect": "^4.0.0"
   }
 }

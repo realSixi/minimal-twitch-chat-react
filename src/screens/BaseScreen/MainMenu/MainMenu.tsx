@@ -50,7 +50,7 @@ const MainMenu = ({}) => {
 
                 {!isLoggedIn && (
                     <div className={'text-white'}>
-                        <a href={`https://id.twitch.tv/oauth2/authorize?client_id=${CONFIG.TWITCH_CLIENT_ID}&redirect_uri=${window.location.origin}/login/callback&force_verify=false&response_type=token&scope=${encodeURIComponent('chat:edit chat:read channel:moderate')}&claims=sub,exp`}>Anmelden</a>
+                        <a href={`https://id.twitch.tv/oauth2/authorize?client_id=${CONFIG.TWITCH_CLIENT_ID}&redirect_uri=${window.location.origin}/minimal-twitch-chat-react/login/callback&force_verify=false&response_type=token&scope=${encodeURIComponent('chat:edit chat:read channel:moderate')}&claims=sub,exp`}>Anmelden</a>
                     </div>
                 )}
 
