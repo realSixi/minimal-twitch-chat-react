@@ -82,10 +82,10 @@ const Chat = ({}) => {
                         }
 
 
-                        return <div className={'w-full flex flex-1'}>
+                        return <div key={msg.userstate['id']}  className={'w-full flex flex-1'}>
                             <div className={'flex-1 -my-1'}>
                                 <ChatMessage
-                                    key={msg.userstate['id']} message={msg} />
+                                    message={msg} />
                             </div>
                             {/*TODO: add later -> check if mod / admin first*/}
                             {/*<div className={''}>*/}

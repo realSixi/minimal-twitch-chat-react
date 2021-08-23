@@ -6,7 +6,7 @@ import { twitchSelectors } from '../../../redux/twitch';
 import UserInfo from '../../../components/Menu/UserInfo/UserInfo';
 import DropDownMenu from '../../../components/DropDownMenu/DropDownMenu';
 import { push } from 'connected-react-router';
-import { MenuIcon } from '@heroicons/react/outline';
+import { MenuIcon, LoginIcon } from '@heroicons/react/outline';
 import ChatInput from '../../../components/ChatInput/ChatInput';
 import { chatActions, chatSelectors } from '../../../redux/chat';
 import CONFIG from '../../../config';
@@ -48,12 +48,6 @@ const MainMenu = ({}) => {
                 />
 
 
-                {!isLoggedIn && (
-                    <div className={'text-white'}>
-                        <a href={`https://id.twitch.tv/oauth2/authorize?client_id=${CONFIG.TWITCH_CLIENT_ID}&redirect_uri=${window.location.origin}/minimal-twitch-chat-react/login/callback&force_verify=false&response_type=token&scope=${encodeURIComponent('chat:edit chat:read channel:moderate')}&claims=sub,exp`}>Anmelden</a>
-                    </div>
-                )}
-
                 <ChatInput
                     onSubmit={(channel) => {
                         dispatch(chatActions.selectChannel(channel));
@@ -63,13 +57,13 @@ const MainMenu = ({}) => {
                 <div className={'flex flex-1 flex-shrink flex flex-row truncate'}>
                     {streamInfo && (
 
-                            <div className={'stream-info flex flex-1 items-center flex-shrink space-x-4 truncate'}>
-                                <div
-                                    className={'bg-purple-500 text-sm rounded-full items-center justify-center flex-shrink-0 flex p-1 px-2'}>
-                                    {streamInfo.viewer_count}<span className={'hidden lg:block'}>&nbsp;Zuschauer</span>
-                                </div>
-                                <div className={'flex-shrink truncate'}>{streamInfo.title}</div>
+                        <div className={'stream-info flex flex-1 items-center flex-shrink space-x-4 truncate'}>
+                            <div
+                                className={'bg-purple-500 text-sm rounded-full items-center justify-center flex-shrink-0 flex p-1 px-2'}>
+                                {streamInfo.viewer_count}<span className={'hidden lg:block'}>&nbsp;Zuschauer</span>
                             </div>
+                            <div className={'flex-shrink truncate'}>{streamInfo.title}</div>
+                        </div>
 
 
                     )}
@@ -97,6 +91,13 @@ const MainMenu = ({}) => {
                             buttonComponent={
                                 <UserInfo user={user} />
                             } />
+                    )}
+                    {!isLoggedIn && (
+                        <div className={'text-white'}>
+                            <a className={'flex items-center'} href={`https://id.twitch.tv/oauth2/authorize?client_id=${CONFIG.TWITCH_CLIENT_ID}&redirect_uri=${window.location.origin}/minimal-twitch-chat-react/login/callback&force_verify=false&response_type=token&scope=${encodeURIComponent('chat:edit chat:read channel:moderate')}&claims=sub,exp`}>
+                                <LoginIcon className={'w-8 mr-2 cursor-pointer'} /> Anmelden
+                            </a>
+                        </div>
                     )}
                 </div>
             </menu>

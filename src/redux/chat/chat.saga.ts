@@ -110,7 +110,7 @@ function createTmiChannel(client: tmi.Client): any {
                 deletedMessage: deletedMessage,
                 messageId: userstate['target-msg-id'],
             }));
-        })
+        });
 
         client.on('action', (channel, userstate: tmi.ChatUserstate, message, self) => {
             console.log('msg', channel, userstate, message, self);
@@ -177,19 +177,17 @@ function createTmiChannel(client: tmi.Client): any {
 let client: (tmi.Client | undefined) = undefined;
 
 function* createClient(channel: string, userId?: string, token?: string) { //
-    console.log('Create Client...', channel, userId, token);
 
     if (!client) {
         client = tmi.client({
             options: {
-                debug: true,
-                messagesLogLevel: 'info',
+                debug: CONFIG.DEBUG,
+                messagesLogLevel: CONFIG.DEBUG ? 'info' : 'error',
                 clientId: CONFIG.TWITCH_CLIENT_ID,
             },
             connection: {
                 secure: true,
                 reconnect: true,
-
             },
             identity: {
                 username: userId,
@@ -204,11 +202,7 @@ function* createClient(channel: string, userId?: string, token?: string) { //
         yield fork(init, client);
 
         yield delay(1000);
-        // if(channel === 'realsixi'){
-        //     // yield client.say('#'+channel, "Moin!");
-        //     // yield client.ban(channel, "nightbot", "test");
-        //     // client.tim
-        // }
+
     } else {
         let channelName: string = yield select(chatSelectors.getChannelName);
         try {
@@ -226,39 +220,36 @@ function* createClient(channel: string, userId?: string, token?: string) { //
     }
 
     return () => {
-        console.log("Create Client - Canceled")
-    }
+        console.log('Create Client - Canceled');
+    };
 }
 
-function* deleteMessage({payload: {msgId}} : PayloadAction<string, DeleteMessageActionPayload>){
+function* deleteMessage({ payload: { msgId } }: PayloadAction<string, DeleteMessageActionPayload>) {
     const channelName: string = yield select(chatSelectors.getChannelName);
-    if(client){
-        try{
+    if (client) {
+        try {
             yield client.deletemessage(channelName, msgId);
-        } catch(e){
+        } catch (e) {
             console.log(e);
         }
     }
 }
 
-function* timeoutUser({payload: {duration, reason, username}} : PayloadAction<string, TimeoutActionPayload>){
+function* timeoutUser({ payload: { duration, reason, username } }: PayloadAction<string, TimeoutActionPayload>) {
     const channelName: string = yield select(chatSelectors.getChannelName);
-    if(client){
-        try{
+    if (client) {
+        try {
             yield client.timeout(channelName, username, duration, reason);
-        } catch(e){
+        } catch (e) {
             console.log(e);
         }
     }
 }
-
 
 
 export default function* chatSaga() {
-    console.log('init chat!');
-
-    yield takeLatest(chatActions.deleteMessage.type, deleteMessage)
-    yield takeLatest(chatActions.timeoutUser.type, timeoutUser)
+    yield takeLatest(chatActions.deleteMessage.type, deleteMessage);
+    yield takeLatest(chatActions.timeoutUser.type, timeoutUser);
 
     let channel = undefined;
     let token = undefined;
@@ -271,11 +262,24 @@ export default function* chatSaga() {
             selectChannel,
             userInfoReceived,
             tokenReceived,
-        }: { selectChannel: PayloadAction<string, string>, userInfoReceived: PayloadAction<string, TwitchUserInfo>, tokenReceived: PayloadAction<string, string> } = yield race({
+            rehydrated,
+        }: {
+            selectChannel: PayloadAction<string, string>,
+            userInfoReceived: PayloadAction<string, TwitchUserInfo>,
+            tokenReceived: PayloadAction<string, string>
+            rehydrated: Action
+        } = yield race({
             selectChannel: take(chatActions.selectChannel.type),
             userInfoReceived: take(twitchActions.userInfoReceived.type),
             tokenReceived: take(authActions.processToken.type),
+            rehydrated: take('persist/REHYDRATE'),
         });
+
+        if (rehydrated) {
+            let persistedChannelName: (string | undefined) = yield select(chatSelectors.getChannelName);
+            if (persistedChannelName)
+                channel = persistedChannelName;
+        }
 
         if (tokenReceived) {
             token = tokenReceived.payload;
@@ -285,9 +289,9 @@ export default function* chatSaga() {
             user = userInfoReceived.payload;
         }
 
-        console.log("Race Completed");
+        console.log('Race Completed');
 
-        if(chatTask){
+        if (chatTask) {
             yield cancel(chatTask);
         }
 
@@ -297,7 +301,4 @@ export default function* chatSaga() {
 
     }
 
-
-    // let {payload} = yield take(chatActions.selectChannel.type);
-    // yield call(createClient, payload)
 }
