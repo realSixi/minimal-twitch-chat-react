@@ -1,4 +1,4 @@
-import { createStore, applyMiddleware } from 'redux';
+import { createStore, applyMiddleware, Store } from 'redux';
 import createSagaMiddleware from 'redux-saga';
 import logger from 'redux-logger';
 import rootSaga from './saga';
@@ -7,6 +7,7 @@ import storage from 'redux-persist/lib/storage'; // defaults to localStorage for
 import { createBrowserHistory } from 'history';
 import { routerMiddleware } from 'connected-react-router';
 import createRootReducer from './reducers';
+import CONFIG from '../config';
 
 
 const persistConfig = {
@@ -23,7 +24,12 @@ const rootReducer = createRootReducer(history);
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 
-const store = createStore(persistedReducer, applyMiddleware(sagaMiddleware, routerMiddleware(history), logger));
+let store : Store;
+if (process.env.NODE_ENV === 'development') {
+    store = createStore(persistedReducer, applyMiddleware(sagaMiddleware, routerMiddleware(history), logger));
+} else {
+    store = createStore(persistedReducer, applyMiddleware(sagaMiddleware, routerMiddleware(history)));
+}
 
 sagaMiddleware.run(rootSaga);
 
