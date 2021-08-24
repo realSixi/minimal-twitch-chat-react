@@ -38,36 +38,36 @@ const Chat = ({}) => {
                         if(!msg.message || msg.message.length === 0)
                             return true;
 
-                        // let length = msg.message.length;
-                        // let words = msg.message.split(' ').length;
-                        // let noteCount = msg.message.match(/([a-zA-Z]+\W*\d+)/g);
-                        // let wordLengthRatio = words / length;
-                        //
-                        // if (msg.type !== ChatEntryType.chat) {
-                        //     return true;
-                        // }
-                        //
-                        // if (msg.message.length === 1) {
-                        //     return false;
-                        // } else if (msg.message.startsWith('!bandit')) {
-                        //     return false;
-                        // } else if (msg.message.startsWith('!marble')) {
-                        //     return false;
-                        // } else if (msg.message.startsWith('!song')) {
-                        //     return false;
-                        // } else if (msg.message.indexOf('https://www.thingiverse.com') > -1) {
-                        //
-                        // } else if (msg.userstate.username === 'projektionbot') {
-                        //     return false;
-                        // } else if (msg.userstate.username === 'streamelements') {
-                        //     return false;
-                        // } else if (msg.userstate.username === 'sascha_lbot') {
-                        //     return false;
-                        // } else if (msg.message.match(/~\d+/)) {
-                        //     return false;
-                        // } else if ((noteCount || []).length > 10 && wordLengthRatio > 0.1) {
-                        //     return false;
-                        // }
+                        let length = msg.message.length;
+                        let words = msg.message.split(' ').length;
+                        let noteCount = msg.message.match(/([a-zA-Z]+\W*\d+)/g);
+                        let wordLengthRatio = words / length;
+
+                        if (msg.type !== ChatEntryType.chat) {
+                            return true;
+                        }
+
+                        if (msg.message.length === 1) {
+                            return false;
+                        } else if (msg.message.startsWith('!bandit')) {
+                            return false;
+                        } else if (msg.message.startsWith('!marble')) {
+                            return false;
+                        } else if (msg.message.startsWith('!song')) {
+                            return false;
+                        } else if (msg.message.indexOf('https://www.thingiverse.com') > -1) {
+
+                        } else if (msg.userstate.username === 'projektionbot') {
+                            return false;
+                        } else if (msg.userstate.username === 'streamelements') {
+                            return false;
+                        } else if (msg.userstate.username === 'sascha_lbot') {
+                            return false;
+                        } else if (msg.message.match(/~\d+/)) {
+                            return false;
+                        } else if ((noteCount || []).length > 10 && wordLengthRatio > 0.1) {
+                            return false;
+                        }
                         return true;
                     })
                     .map((msg, index) => {
