@@ -3,7 +3,9 @@ import { createReducer } from '@reduxjs/toolkit';
 import authActions from './auth.actions';
 
 
-const initialState: AuthStateType = {};
+const initialState: AuthStateType = {
+    loginProcess: false
+};
 
 const reducer = createReducer(initialState, (builder) => {
     builder
@@ -11,10 +13,17 @@ const reducer = createReducer(initialState, (builder) => {
             return {
                 ...state,
                 token: action.payload,
+                loginProcess: false,
             }
         })
         .addCase(authActions.logout, (state, action) => {
             return initialState;
+        })
+        .addCase(authActions.login, (state, action) => {
+            return {
+                ...state,
+                loginProcess: true,
+            }
         })
 });
 

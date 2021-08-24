@@ -9,6 +9,8 @@ import { TwitchUserInfo } from '../twitch/twitch.types';
 import { twitchActions } from '../twitch';
 import { Action } from 'redux';
 import CONFIG from '../../config';
+import { TokenLoginActionPayload } from '../auth/auth.types';
+import { current } from '@reduxjs/toolkit';
 
 
 function* init(client: tmi.Client) {
@@ -28,7 +30,6 @@ function* init(client: tmi.Client) {
 
         const event: PayloadAction<'message', ChatEntry> = yield take(chatChannel);
 
-
         yield put(event);
     }
 }
@@ -36,9 +37,13 @@ function* init(client: tmi.Client) {
 function createTmiChannel(client: tmi.Client): any {
     return eventChannel((emit) => {
 
+        console.log('Create Event Handler');
+
         client.on('connected', async (e) => {
             console.log('Connected!');
+            emit(chatActions.connected());
         });
+
 
         client.on('chat', (channel, userstate: tmi.ChatUserstate, message, self) => {
             emit(chatMessage({
@@ -134,6 +139,24 @@ function createTmiChannel(client: tmi.Client): any {
             }));
         });
 
+        client.on('notice', (channel, msgid, message) => {
+            console.log('notice', channel, msgid, message);
+        });
+
+        client.on('join', (channel, username, self) => {
+            if (self) {
+                emit(chatActions.channelJoined(channel.substr(1)));
+                emit(chatMessage({
+                    id: new Date().toDateString(),
+                    type: ChatEntryType.status,
+                    timestamp: new Date(),
+                    message: `Verbunden mit ${channel}`,
+                    userstate: {},
+                }));
+            }
+        });
+
+
         setTimeout(() => {
             // emit(chatMessage({
             //     type: ChatEntryType.cheer,
@@ -176,7 +199,8 @@ function createTmiChannel(client: tmi.Client): any {
 
 let client: (tmi.Client | undefined) = undefined;
 
-function* createClient(channel: string, userId?: string, token?: string) { //
+function* createClient(userId?: string, token?: string) { //
+    console.log('XXXX CreateClient!', userId, token);
 
     if (!client) {
         client = tmi.client({
@@ -193,31 +217,32 @@ function* createClient(channel: string, userId?: string, token?: string) { //
                 username: userId,
                 password: token && `oauth:${token}`,
             },
-            channels: [channel],
+            channels: [],
         });
+        yield fork(init, client);
+        yield delay(100);
         yield client.connect();
 
 
-        yield put(chatActions.channelJoined(channel));
-        yield fork(init, client);
-
-        yield delay(1000);
-
-    } else {
-        let channelName: string = yield select(chatSelectors.getChannelName);
-        try {
-            yield client.part(channelName);
-        } catch (e) {
-
-        }
-        try {
-            yield client.join(channel);
-            yield put(chatActions.channelJoined(channel));
-            yield fork(init, client);
-        } catch (e) {
-
-        }
     }
+    // else {
+    //     yield fork(init, client);
+    //     console.log('reuse client');
+    //     yield client.connect();
+    //     let channelName: string = yield select(chatSelectors.getChannelName);
+    //     try {
+    //         yield client.part(channelName);
+    //     } catch (e) {
+    //
+    //     }
+    //     try {
+    //         yield client.join(channel);
+    //         yield put(chatActions.channelJoined(channel));
+    //
+    //     } catch (e) {
+    //
+    //     }
+    // }
 
     return () => {
         console.log('Create Client - Canceled');
@@ -246,59 +271,84 @@ function* timeoutUser({ payload: { duration, reason, username } }: PayloadAction
     }
 }
 
-
-export default function* chatSaga() {
-    yield takeLatest(chatActions.deleteMessage.type, deleteMessage);
-    yield takeLatest(chatActions.timeoutUser.type, timeoutUser);
-
-    let channel = undefined;
-    let token = undefined;
-    let user = undefined;
-
-    let chatTask: (Task | undefined) = undefined;
+function* handleChannels() {
+    let currentChannel: (string | undefined) = yield select(chatSelectors.getChannelName);
 
     while (true) {
-        let {
-            selectChannel,
-            userInfoReceived,
-            tokenReceived,
-            rehydrated,
-        }: {
-            selectChannel: PayloadAction<string, string>,
-            userInfoReceived: PayloadAction<string, TwitchUserInfo>,
-            tokenReceived: PayloadAction<string, string>
-            rehydrated: Action
-        } = yield race({
-            selectChannel: take(chatActions.selectChannel.type),
-            userInfoReceived: take(twitchActions.userInfoReceived.type),
-            tokenReceived: take(authActions.processToken.type),
-            rehydrated: take('persist/REHYDRATE'),
-        });
-
-        if (rehydrated) {
-            let persistedChannelName: (string | undefined) = yield select(chatSelectors.getChannelName);
-            if (persistedChannelName)
-                channel = persistedChannelName;
+        let { payload: channel }: PayloadAction<string, string> = yield take(chatActions.selectChannel.type);
+        console.log("Current channel", currentChannel, 'new', channel)
+        currentChannel = yield select(chatSelectors.getChannelName);
+        if (currentChannel && client) {
+            try {
+                yield client.part(currentChannel);
+            } catch (e) {
+                console.log('Error parting channel');
+            }
         }
-
-        if (tokenReceived) {
-            token = tokenReceived.payload;
-        } else if (selectChannel) {
-            channel = selectChannel.payload;
-        } else if (userInfoReceived) {
-            user = userInfoReceived.payload;
+        if (client) {
+            yield client.join(channel);
         }
-
-        console.log('Race Completed');
-
-        if (chatTask) {
-            yield cancel(chatTask);
-        }
-
-        if (channel) {
-            chatTask = yield fork(createClient, channel, user?.login, token);
-        }
-
     }
+
+}
+
+function* resetClient() {
+    if (client) {
+        try {
+            yield client.disconnect();
+        } catch (e) {
+            console.log('Client not connected');
+        }
+        client = undefined;
+    }
+}
+
+function* joinSelectedChannel() {
+    console.log('waiting for connection');
+    yield take(chatActions.connected.type);
+    let channel: string = yield select(chatSelectors.getChannelName);
+    console.log('current channel?', channel);
+    if (client) {
+        // @ts-ignore
+        yield client.join(channel);
+    }
+}
+
+function* createAuthedClient({ payload: token }: PayloadAction<string, string>) {
+    yield call(resetClient);
+
+    yield fork(joinSelectedChannel);
+
+    let { payload: userInfo }: { payload: TwitchUserInfo } = yield take(twitchActions.userInfoReceived.type);
+    yield call(createClient, userInfo.login, token);
+
+
+}
+
+function* createAnonymousClient() {
+    yield call(resetClient);
+    yield fork(joinSelectedChannel);
+    yield call(createClient, undefined, undefined);
+
+}
+
+
+export default function* chatSaga() {
+
+
+    yield fork(handleChannels);
+
+    // yield takeLatest(chatActions.selectChannel.type, handleChannels)
+
+    // yield fork(createClient, undefined, undefined);
+    yield takeLatest(authActions.processToken.type, createAuthedClient);
+    yield takeLatest(authActions.logout.type, createAnonymousClient);
+
+    // @ts-ignore
+    if (yield take(authActions.processToken.type)) {
+        yield takeLatest(chatActions.deleteMessage.type, deleteMessage);
+        yield takeLatest(chatActions.timeoutUser.type, timeoutUser);
+    }
+
 
 }

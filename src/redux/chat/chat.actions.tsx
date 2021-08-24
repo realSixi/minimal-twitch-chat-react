@@ -22,12 +22,21 @@ export const timeoutUser = createAction<TimeoutActionPayload, 'chat/timeout'>('c
 export const deleteMessage = createAction<DeleteMessageActionPayload, 'chat/delete-message'>('chat/delete-message');
 
 
+export const resetChat = createAction('chat/reset');
+export const resetMessages = createAction('chat/reset-messages');
+
+
+export const connected = createAction('chat/connected');
+
 export default {
+    resetChat,
     chatMessage,
     selectChannel,
     channelJoined,
     banUser,
     timeoutUser,
     deleteMessage,
-    chatMessageDeleted
+    chatMessageDeleted,
+    resetMessages,
+    connected
 };

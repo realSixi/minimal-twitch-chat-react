@@ -1,4 +1,11 @@
-import { channelJoined, chatMessage, chatMessageDeleted, selectChannel } from './chat.actions';
+import {
+    channelJoined,
+    chatMessage,
+    chatMessageDeleted,
+    resetChat,
+    resetMessages,
+    selectChannel,
+} from './chat.actions';
 import { createReducer } from '@reduxjs/toolkit';
 import { ChatEntry, ChatEntryType } from './chat.types';
 
@@ -17,27 +24,25 @@ const initialState: ChatStateType = {
 
 const reducer = createReducer(initialState, (builder) => {
     builder
+        .addCase(resetMessages, (state, action) => {
+            return {
+                ...initialState,
+                channelName: state.channelName,
+            };
+        })
+        .addCase(resetChat, (state, action) => {
+            return { ...initialState };
+        })
         .addCase(selectChannel, (state, action) => {
             return {
                 ...state,
                 messages: [],
-            }
+            };
         })
         .addCase(channelJoined, (state, action) => {
             return {
                 ...state,
                 channelName: action.payload,
-                messages: [
-                    {
-                        type: ChatEntryType.action,
-                        timestamp: new Date(),
-                        message: '',
-                        userstate: {
-                            'display-name': `verbunden mit ${action.payload} `,
-                        },
-                    },
-                    ...state.messages,
-                ],
             };
         })
         .addCase(chatMessage, (state, action) => {
