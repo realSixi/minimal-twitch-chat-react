@@ -13,7 +13,7 @@ import CONFIG from '../config';
 const persistConfig = {
     key: 'minimal-twitch-chat',
     storage,
-    blacklist: ['auth', 'twitch'],
+    blacklist: [ 'twitch'],
 };
 
 export const history = createBrowserHistory({ basename: '/minimal-twitch-chat-react/' });
@@ -33,5 +33,6 @@ sagaMiddleware.run(rootSaga);
 
 
 export const persistor = persistStore(store);
+
 
 export default store;

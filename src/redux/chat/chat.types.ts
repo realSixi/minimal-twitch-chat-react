@@ -47,6 +47,7 @@ export enum ChatEntryType {
     primepaidupgrade,
     host,
     raid,
+    status,
 }
 
 
