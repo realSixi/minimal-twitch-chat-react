@@ -1,17 +1,17 @@
 {
   "files": {
-    "main.css": "/minimal-twitch-chat-react/static/css/main.17638f5c.chunk.css",
-    "main.js": "/minimal-twitch-chat-react/static/js/main.81aaf280.chunk.js",
-    "main.js.map": "/minimal-twitch-chat-react/static/js/main.81aaf280.chunk.js.map",
+    "main.css": "/minimal-twitch-chat-react/static/css/main.ff5cb69f.chunk.css",
+    "main.js": "/minimal-twitch-chat-react/static/js/main.0580cff3.chunk.js",
+    "main.js.map": "/minimal-twitch-chat-react/static/js/main.0580cff3.chunk.js.map",
     "runtime-main.js": "/minimal-twitch-chat-react/static/js/runtime-main.95143711.js",
     "runtime-main.js.map": "/minimal-twitch-chat-react/static/js/runtime-main.95143711.js.map",
-    "static/js/2.5b4c8fde.chunk.js": "/minimal-twitch-chat-react/static/js/2.5b4c8fde.chunk.js",
-    "static/js/2.5b4c8fde.chunk.js.map": "/minimal-twitch-chat-react/static/js/2.5b4c8fde.chunk.js.map",
+    "static/js/2.8b13b80e.chunk.js": "/minimal-twitch-chat-react/static/js/2.8b13b80e.chunk.js",
+    "static/js/2.8b13b80e.chunk.js.map": "/minimal-twitch-chat-react/static/js/2.8b13b80e.chunk.js.map",
     "static/js/3.2cd6ebce.chunk.js": "/minimal-twitch-chat-react/static/js/3.2cd6ebce.chunk.js",
     "static/js/3.2cd6ebce.chunk.js.map": "/minimal-twitch-chat-react/static/js/3.2cd6ebce.chunk.js.map",
     "index.html": "/minimal-twitch-chat-react/index.html",
-    "static/css/main.17638f5c.chunk.css.map": "/minimal-twitch-chat-react/static/css/main.17638f5c.chunk.css.map",
-    "static/js/2.5b4c8fde.chunk.js.LICENSE.txt": "/minimal-twitch-chat-react/static/js/2.5b4c8fde.chunk.js.LICENSE.txt",
+    "static/css/main.ff5cb69f.chunk.css.map": "/minimal-twitch-chat-react/static/css/main.ff5cb69f.chunk.css.map",
+    "static/js/2.8b13b80e.chunk.js.LICENSE.txt": "/minimal-twitch-chat-react/static/js/2.8b13b80e.chunk.js.LICENSE.txt",
     "static/media/BaseScreen.b98d935f.less": "/minimal-twitch-chat-react/static/media/BaseScreen.b98d935f.less",
     "static/media/BasicChatEntry.c4a400d9.less": "/minimal-twitch-chat-react/static/media/BasicChatEntry.c4a400d9.less",
     "static/media/ChannelList.5c6b1372.less": "/minimal-twitch-chat-react/static/media/ChannelList.5c6b1372.less",
@@ -28,8 +28,8 @@
   },
   "entrypoints": [
     "static/js/runtime-main.95143711.js",
-    "static/js/2.5b4c8fde.chunk.js",
-    "static/css/main.17638f5c.chunk.css",
-    "static/js/main.81aaf280.chunk.js"
+    "static/js/2.8b13b80e.chunk.js",
+    "static/css/main.ff5cb69f.chunk.css",
+    "static/js/main.0580cff3.chunk.js"
   ]
 }
