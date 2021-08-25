@@ -22,8 +22,8 @@ const ChatMessage = ({ message }: { message: ChatEntry }) => {
                         messageClassName={clsx([
                             message.deleted && 'text-gray-600',
                             message.userstate['message-type'] === 'action' && 'italic',
-
                         ])}
+                        tags={message.tags}
 
         />
     );

@@ -1,4 +1,4 @@
-import chroma from 'chroma-js'
+import chroma from 'chroma-js';
 
 export function hashCode(str: string) { // java String#hashCode
     let hash = 0;
@@ -8,16 +8,27 @@ export function hashCode(str: string) { // java String#hashCode
     return hash;
 }
 
-export const getColor = (s : string) => {
+export const getColor = (s: string) => {
     let hash = hashCode(s);
     return chroma.hsl(hash % 360, 0.7, 0.7).hex();
-}
+};
 
 export const isDark = (s: string) => {
     //console.log("check darkgness", s, chroma(s).get("lab.l"));
-    return chroma(s).get("lab.l") < 30;
-}
+    return chroma(s).get('lab.l') < 30;
+};
 
 export const invertColor = (s: string) => {
-    return (Number(`0x1${s}`) ^ 0xFFFFFF).toString(16).substr(1).toUpperCase()
-}
+    return (Number(`0x1${s}`) ^ 0xFFFFFF).toString(16).substr(1).toUpperCase();
+};
+
+
+export const normalizeColor = (s: string | undefined) => {
+    if (!s) return s;
+
+    if (chroma(s).get('lab.l') > 40)
+        return s;
+
+    console.log('normalize', s);
+    return chroma(s).brighten(1).hex();
+};

@@ -1,17 +1,20 @@
-import { call, cancel, delay, fork, put, race, select, take, takeLatest } from 'redux-saga/effects';
+import { call, delay, fork, put, select, take, takeLatest } from 'redux-saga/effects';
 import tmi, { DeleteUserstate, SubGiftUserstate, SubMethods, SubMysteryGiftUserstate, SubUserstate } from 'tmi.js';
-import { eventChannel, Task } from 'redux-saga';
+import { eventChannel } from 'redux-saga';
 import chatActions, { chatMessage, chatMessageDeleted } from './chat.actions';
-import { ChatEntry, ChatEntryType, DeleteMessageActionPayload, TimeoutActionPayload } from './chat.types';
+import {
+    ChatEntry,
+    ChatEntryTags,
+    ChatEntryType,
+    DeleteMessageActionPayload,
+    TimeoutActionPayload,
+} from './chat.types';
 import { chatSelectors } from './index';
 import { authActions } from '../auth';
 import { TwitchUserInfo } from '../twitch/twitch.types';
 import { twitchActions } from '../twitch';
-import { Action } from 'redux';
 import CONFIG from '../../config';
-import { TokenLoginActionPayload } from '../auth/auth.types';
-import { current } from '@reduxjs/toolkit';
-
+import dotprop from 'dot-prop-immutable';
 
 function* init(client: tmi.Client) {
     console.log('INIT!');
@@ -28,7 +31,18 @@ function* init(client: tmi.Client) {
 
         // console.log("race", event, close)
 
-        const event: PayloadAction<'message', ChatEntry> = yield take(chatChannel);
+        let event: PayloadAction<'message', ChatEntry> = yield take(chatChannel);
+
+        if (event?.payload?.userstate) {
+            let messageCount: number = yield select(chatSelectors.getMessageCount(event.payload.userstate['display-name']));
+            event = dotprop.set(event, `payload.tags`, []);
+            if (messageCount === 0) {
+                event = dotprop.set(event, `payload.tags.$end`, ChatEntryTags.first);
+            }
+            if(event.payload.userstate['custom-reward-id']){
+                event = dotprop.set(event, `payload.tags.$end`, ChatEntryTags.reward);
+            }
+        }
 
         yield put(event);
     }
@@ -147,7 +161,7 @@ function createTmiChannel(client: tmi.Client): any {
             if (self) {
                 emit(chatActions.channelJoined(channel.substr(1)));
                 emit(chatMessage({
-                    id: new Date().toDateString(),
+                    id: new Date().toISOString(),
                     type: ChatEntryType.status,
                     timestamp: new Date(),
                     message: `Verbunden mit ${channel}`,
@@ -155,6 +169,19 @@ function createTmiChannel(client: tmi.Client): any {
                 }));
             }
         });
+
+        // setTimeout(() => {
+        //     emit(chatMessage({
+        //         id: 'xxxxxx',
+        //         type: ChatEntryType.cheer,
+        //         timestamp: new Date(),
+        //         message: 'Yoooo Cheer100 krissitvCheer100 Cheer100 Hey Nice Party1000 Party5 ',
+        //         userstate: {
+        //             'display-name': 'test',
+        //             bits: '2000',
+        //         },
+        //     }));
+        // }, 1000);
 
 
         setTimeout(() => {
@@ -276,7 +303,7 @@ function* handleChannels() {
 
     while (true) {
         let { payload: channel }: PayloadAction<string, string> = yield take(chatActions.selectChannel.type);
-        console.log("Current channel", currentChannel, 'new', channel)
+        console.log('Current channel', currentChannel, 'new', channel);
         currentChannel = yield select(chatSelectors.getChannelName);
         if (currentChannel && client) {
             try {

@@ -1,6 +1,7 @@
 export interface TwitchStateType {
     user?: TwitchUserInfo | undefined,
     streamInfo?: TwitchStreamInfo | undefined,
+    cheermotes?: TwitchCheermotes[],
 }
 
 
@@ -25,4 +26,34 @@ export interface TwitchStreamInfo {
     thumbnail_url: string,
     tag_ids: string[],
     is_mature: boolean,
+}
+
+
+export interface TwitchCheermotes {
+    prefix: string,
+    type?: string,
+    tiers: {
+        color: string,
+        min_bits: number,
+        images: {
+            dark: {
+                animated: {
+                    1: string,
+                    1.5: string,
+                    2: string,
+                    3: string,
+                    4: string,
+                }
+            },
+            light : {
+                animated: {
+                    1: string,
+                    1.5: string,
+                    2: string,
+                    3: string,
+                    4: string,
+                }
+            }
+        }
+    }[],
 }
