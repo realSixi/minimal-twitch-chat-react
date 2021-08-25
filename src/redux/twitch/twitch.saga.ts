@@ -1,10 +1,11 @@
-import { delay, put, select, takeLatest } from 'redux-saga/effects';
+import { delay, put, select, take, takeLatest } from 'redux-saga/effects';
 import { twitchActions, twitchSelectors } from './index';
 import { authActions, authSelectors } from '../auth';
 import axios from 'axios';
 import { followedStreamsReceived, streamInfoReceived } from './twitch.actions';
 import { chatActions, chatSelectors } from '../chat';
 import CONFIG from '../../config';
+import { TwitchCheermotes } from './twitch.types';
 
 
 function* getUserInfo() {
@@ -90,6 +91,27 @@ function* requestFollowedStreams() {
     yield put(followedStreamsReceived(data.data));
 }
 
+function* getCheermotes({ payload: channel }: PayloadAction<string, string>) {
+    const broadcasterId: string = yield getBroadcasterId(channel);
+    let token: string = yield select(authSelectors.getToken);
+
+
+    let { data } = yield axios.get(`https://api.twitch.tv/helix/bits/cheermotes`, {
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Client-Id': CONFIG.TWITCH_CLIENT_ID,
+        },
+        params: {
+            broadcaster_id: broadcasterId,
+        },
+    });
+
+    console.log('cheermotes', data);
+
+    yield put(twitchActions.cheermotesReceived(data.data.filter((e: TwitchCheermotes) => e.type === 'channel_custom')));
+
+}
+
 export default function* twitchSaga() {
     console.log('Twitch Saga Ready');
     yield takeLatest(authActions.processToken.type, getUserInfo);
@@ -97,4 +119,12 @@ export default function* twitchSaga() {
 
 
     yield takeLatest(twitchActions.getFollowedStreams.type, requestFollowedStreams);
+
+
+    // @ts-ignore
+    if (yield take(authActions.processToken.type)) {
+        yield takeLatest(chatActions.channelJoined.type, getCheermotes);
+    }
+
+
 }

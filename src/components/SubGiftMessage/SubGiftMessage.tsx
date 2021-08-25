@@ -12,7 +12,9 @@ const SubGiftMessage = ({message}: { message: ChatEntry }) => {
                         type={message.type}
                         usercolor={message.userstate.color || getColor(message.userstate['display-name'] || String(Math.random()))}
                         username={message.userstate['display-name']}
-                        message={createEmoteMessage(message.message, message.userstate.emotes)}/>
+                        message={createEmoteMessage(message.message, message.userstate.emotes)}
+                        tags={message.tags}
+        />
     );
 };
 

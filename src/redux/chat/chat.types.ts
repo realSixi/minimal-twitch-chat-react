@@ -7,9 +7,14 @@ export interface ChatEntry {
     message: string,
     type: ChatEntryType,
     subMessages?: ChatEntry[],
-    deleted?: boolean
+    deleted?: boolean,
+    tags?: ChatEntryTags[]
 }
 
+export enum ChatEntryTags {
+    first,
+    reward,
+}
 
 export interface ChatMessageDeleted {
     channel: string,

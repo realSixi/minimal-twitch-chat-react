@@ -2,11 +2,10 @@ import React, { ReactNode } from 'react';
 import './BasicChatEntry.less';
 import dayjs from 'dayjs';
 import clsx from 'clsx';
-import { useSelector } from 'react-redux';
-import { chatSelectors } from '../../redux/chat';
 import { Userstate } from 'tmi.js';
-import { ChatEntry, ChatEntryType } from '../../redux/chat/chat.types';
+import { ChatEntry, ChatEntryTags, ChatEntryType } from '../../redux/chat/chat.types';
 import ChatMessage from '../ChatMessage/ChatMessage';
+import { normalizeColor } from '../../helper/ColorHelper';
 
 type Props = {
     timestamp: Date,
@@ -20,6 +19,7 @@ type Props = {
     userstate?: Userstate,
     subMessages?: ChatEntry[],
     type?: ChatEntryType,
+    tags?: ChatEntryTags[],
 }
 
 const BasicChatEntry = ({
@@ -34,9 +34,10 @@ const BasicChatEntry = ({
                             userstate,
                             subMessages,
                             type,
+                            tags,
                         }: Props) => {
 
-    let messageCount = useSelector(chatSelectors.getMessageCount(username));
+    // let messageCount = useSelector(chatSelectors.getMessageCount(username));
 
     return (
         <div className={'m-2'}>
@@ -46,7 +47,7 @@ const BasicChatEntry = ({
                     className={'flex-shrink-0 leading-9 text-sm w-14 text-gray-600'}>{dayjs(timestamp).format('HH:mm:ss')}</div>
                 <div style={{ minWidth: '1.2rem' }}
                      className={'flex-shrink-0 space-x-1 text-sm h-9 flex items-center content-center text-gray-900'}>
-                    {type === ChatEntryType.chat && messageCount === 1 && (
+                    {type === ChatEntryType.chat && tags?.includes(ChatEntryTags.first) && (
 
                         <div
                             className={'text-gray-900 text-sm inline-block bg-pink-600 flex items-center justify-center rounded-full w-5 text-center h-5'}>
@@ -65,7 +66,7 @@ const BasicChatEntry = ({
 
                 <div>
                 <span
-                    style={{ color: usercolor }}
+                    style={{ color: normalizeColor(usercolor) }}
                     className={clsx(userClassName)}>{username} </span>
 
                     <span

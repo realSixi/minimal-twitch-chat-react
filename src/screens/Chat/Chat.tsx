@@ -35,7 +35,7 @@ const Chat = ({}) => {
             {
                 messages
                     .filter(msg => {
-                        if(!msg.message || msg.message.length === 0)
+                        if (!msg.message || msg.message.length === 0)
                             return true;
 
                         let length = msg.message.length;
@@ -61,6 +61,8 @@ const Chat = ({}) => {
                             return false;
                         } else if (msg.userstate.username === 'streamelements') {
                             return false;
+                        } else if (msg.userstate.username === 'nightbot') {
+                            return false;
                         } else if (msg.userstate.username === 'sascha_lbot') {
                             return false;
                         } else if (msg.message.match(/~\d+/)) {
@@ -81,11 +83,11 @@ const Chat = ({}) => {
                             case ChatEntryType.subgift:
                                 return <SubGiftMessage key={msg.userstate['id']} message={msg} />;
                             case ChatEntryType.status:
-                                return <StatusMessage key={msg.userstate['id']} message={msg} />;
+                                return <StatusMessage key={msg.userstate['id'] || msg.id} message={msg} />;
                         }
 
 
-                        return <div key={msg.userstate['id']}  className={'w-full flex flex-1'}>
+                        return <div key={msg.userstate['id']} className={'w-full flex flex-1'}>
                             <div className={'flex-1 -my-1'}>
                                 <ChatMessage
                                     message={msg} />

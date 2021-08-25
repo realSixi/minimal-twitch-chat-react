@@ -1,17 +1,55 @@
 import React, { ReactNode } from 'react';
+import { TwitchCheermotes } from '../redux/twitch/twitch.types';
+import defaultCheerMotes from './cheermotes.json';
 
 
-export const createCheerMessage = (message: ReactNode[]) => {
-    let result = message.map(msg => {
+const getCheermoteImageUrl = (name: string, amount: number, customCheerMotes: TwitchCheermotes[] | undefined) => {
+    let cheerMotes = defaultCheerMotes as TwitchCheermotes[];
+
+    let foundCheerMote = cheerMotes.find(c => c.prefix === name) || (customCheerMotes || []).find(c => c.prefix === name);
+    if (foundCheerMote) {
+        let tier = foundCheerMote?.tiers
+            .slice()
+            .sort((a, b) => b.min_bits - a.min_bits)
+            .find(t => amount >= t.min_bits);
+        return tier;
+    }
+    return undefined;
+};
+
+export const createCheerMessage = (message: ReactNode[], customCheerMotes: TwitchCheermotes[] | undefined) => {
+
+    let result = message.flatMap(msg => {
         if (typeof msg === 'string') {
-
-            let m = msg.match(/([a-zA-Z]*)(\d+)/);
+            const splitted = msg.split(/([A-Za-z]+\d+)/g);
+            if (splitted) {
+                let msgArray = splitted.map(m => {
+                    let [_, name, amount] = m.match(/([A-Za-z]+)(\d+)/) || [];
+                    if (!name || !amount) {
+                        return m;
+                    }
+                    let cheer = getCheermoteImageUrl(name, parseInt(amount), customCheerMotes);
+                    if (cheer) {
+                        return <span style={{ color: cheer.color }}>
+                        {' '}
+                            <img
+                                className={'inline w-8'}
+                                src={cheer.images.dark.animated['2']} />
+                        <span className={'text-sm'}>
+                            {amount}
+                        </span>{' '}
+                    </span>;
+                    }
+                    return m;
+                });
+                return msgArray;
+            }
         }
         return msg;
     });
 
 
-    return message;
+    return result;
 };
 
 export const createEmoteMessage = (message: string, emotes: { [emoteid: string]: string[] } | undefined) => {
