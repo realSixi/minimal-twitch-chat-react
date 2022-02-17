@@ -13,7 +13,7 @@ export const followedStreamsReceived = createAction<TwitchStreamInfo[], 'twitch/
 
 export const cheermotesReceived = createAction<TwitchCheermotes[], 'twitch/cheermotes'>('twitch/cheermotes')
 
-
+export const setIsModerator = createAction<boolean, 'twitch/ismoderator'>('twitch/ismoderator');
 
 
 export default {
@@ -22,4 +22,5 @@ export default {
     getFollowedStreams,
     followedStreamsReceived,
     cheermotesReceived,
+    setIsModerator,
 };

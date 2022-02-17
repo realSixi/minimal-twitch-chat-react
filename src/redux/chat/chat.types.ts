@@ -8,7 +8,7 @@ export interface ChatEntry {
     type: ChatEntryType,
     subMessages?: ChatEntry[],
     deleted?: boolean,
-    tags?: ChatEntryTags[]
+    tags?: ChatEntryTags[],
 }
 
 export enum ChatEntryTags {

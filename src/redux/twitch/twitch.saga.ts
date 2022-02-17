@@ -1,11 +1,13 @@
-import { delay, put, select, take, takeLatest } from 'redux-saga/effects';
+import { call, delay, put, select, take, takeLatest } from 'redux-saga/effects';
 import { twitchActions, twitchSelectors } from './index';
 import { authActions, authSelectors } from '../auth';
 import axios from 'axios';
 import { followedStreamsReceived, streamInfoReceived } from './twitch.actions';
 import { chatActions, chatSelectors } from '../chat';
 import CONFIG from '../../config';
-import { TwitchCheermotes } from './twitch.types';
+import { TwitchCheermotes, TwitchUserInfo } from './twitch.types';
+import { combineLatest, findAction } from '../saga.helpers';
+import { isModerator } from '../chat/chat.saga';
 
 
 function* getUserInfo() {
@@ -20,6 +22,18 @@ function* getUserInfo() {
 
     yield put(twitchActions.userInfoReceived(data.data[0]));
 }
+
+function* checkIsModerator(actions: PayloadAction<string, any>[]) {
+
+    let { payload: channel } = yield findAction<string>(chatActions.channelJoined, actions);
+    let { payload: user } = yield findAction<TwitchUserInfo>(twitchActions.userInfoReceived, actions);
+
+
+    const isMod: boolean = yield call(isModerator, channel, user.login);
+
+    yield put(twitchActions.setIsModerator(isMod));
+}
+
 
 function* getBroadcasterId(channelName: string) {
 
@@ -124,6 +138,7 @@ export default function* twitchSaga() {
     // @ts-ignore
     if (yield take(authActions.processToken.type)) {
         yield takeLatest(chatActions.channelJoined.type, getCheermotes);
+        yield combineLatest([chatActions.channelJoined.type, twitchActions.userInfoReceived.type], checkIsModerator);
     }
 
 

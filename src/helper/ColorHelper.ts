@@ -26,9 +26,8 @@ export const invertColor = (s: string) => {
 export const normalizeColor = (s: string | undefined) => {
     if (!s) return s;
 
-    if (chroma(s).get('lab.l') > 40)
+    if (chroma(s).get('lab.l') > 50)
         return s;
 
-    console.log('normalize', s);
     return chroma(s).brighten(1).hex();
 };

@@ -14,6 +14,8 @@ const getCheermote = (prefix: string) => createSelector(getCheermotes, cheermote
 
 const getCheermoteLevel = (prefix: string, bits: number) => createSelector(getCheermote(prefix), cheermote => cheermote?.tiers.find(c => bits >= c.min_bits));
 
+const isModerator = createSelector(getUser, user => user?.is_moderator || false);
+
 
 export default {
     getUser,
@@ -22,4 +24,5 @@ export default {
     getCheermotes,
     getCheermote,
     getCheermoteLevel,
+    isModerator,
 };

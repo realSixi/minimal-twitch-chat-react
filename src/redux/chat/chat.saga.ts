@@ -36,12 +36,14 @@ function* init(client: tmi.Client) {
         if (event?.payload?.userstate) {
             let messageCount: number = yield select(chatSelectors.getMessageCount(event.payload.userstate['display-name']));
             event = dotprop.set(event, `payload.tags`, []);
-            if (messageCount === 0) {
-                event = dotprop.set(event, `payload.tags.$end`, ChatEntryTags.first);
-            }
+
             if(event.payload.userstate['custom-reward-id']){
                 event = dotprop.set(event, `payload.tags.$end`, ChatEntryTags.reward);
             }
+            if (messageCount === 0) {
+                event = dotprop.set(event, `payload.tags.$end`, ChatEntryTags.first);
+            }
+
         }
 
         yield put(event);
@@ -297,6 +299,19 @@ function* timeoutUser({ payload: { duration, reason, username } }: PayloadAction
         }
     }
 }
+
+
+export function* isModerator(channel: string, username: string,) {
+    if(channel === username)
+        return true;
+
+    if(client){
+        return (yield client.isMod(channel, username)) as boolean;
+    }
+    return false;
+}
+
+
 
 function* handleChannels() {
     let currentChannel: (string | undefined) = yield select(chatSelectors.getChannelName);
